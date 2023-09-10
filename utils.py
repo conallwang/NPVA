@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 # DEBUG
 # from dataset.pica_dataset import load_obj
 
-root = "/root/workspace/Neural_Point-based_Avatars"
+root = "/path/to/Neural_Point-based_Avatars"
 
 
 def upsample(posMap):
@@ -144,7 +144,7 @@ def seed_everything(seed: int):
 
 
 def upTo8Multiples(num):
-    """向上取到一个8的倍数
+    """up to an 8 multiple
 
     Args:
         num (int): any number
@@ -372,86 +372,6 @@ def check_seam(obj):
     return vert_uvs, True
 
 
-# def Mesh2PositionMap(obj, pos_size=256):
-#     """
-#     Args:
-#         obj['verts']:   7306x3, xyz coordinates of vertices
-#         obj['uvs']:     32808x2, uv coordinates for uv_ids
-#         obj['vert_ids']:    10936x3, vert_ids to build faces
-#         obj['uv_ids']:      10936x3, corresponding uv_ids for vert_ids
-
-#         pos_size (int, optional): size of postion map. Defaults to 256.
-#     RET:
-#         posMap:     256x256x3, postion map of mesh
-#     """
-#     posMap = np.zeros((pos_size, pos_size, 3))
-
-#     tri = obj['uvs'][obj['uv_ids']] * (pos_size - 1)     # Nx3x2
-
-#     bar = tqdm(range(pos_size))
-#     for i in range(pos_size):
-#         u = np.array([i for _ in range(pos_size)])
-#         v = np.array(range(pos_size))
-#         points = np.stack((u, v), axis=1)
-#         barys = batchBarycentric2d(tri, points)
-
-#         # addOne = np.where(np.abs(barys.sum(axis=-1) - 1) <= 1e-4)
-#         # inRange = np.where(((barys >= -1e-4) & (barys <= 1+1e-4)).sum(axis=-1) == 3)
-#         # resIdx = np.intersect1d(addOne, inRange)
-#         resIdx = np.where((np.abs(barys.sum(axis=-1) - 1) <= 1e-4)
-#                           & (((barys >= -1e-4) & (barys <= 1+1e-4)).sum(axis=-1) == 3))
-#         # if resIdx.shape == 0:
-#         #     print(f'Cannot find a triangle for point ({i}, {j}).')
-#         #     break
-
-#         f_id = resIdx[0]
-#         bary = barys[resIdx].reshape(-1, 1)
-#         face = obj['vert_ids'][f_id]    # 3-dim vert ids
-#         posMap[i, resIdx[1]] = (obj['verts'][face].reshape(-1, 3) * bary).reshape(-1, 3, 3).sum(axis=1)
-#         bar.update()
-
-#     return posMap
-
-# def Mesh2PositionMap(obj, pos_size=256, progress=False):
-#     """ ~ 90s
-#     Args:
-#         obj['verts']:   7306x3, xyz coordinates of vertices
-#         obj['uvs']:     32808x2, uv coordinates for uv_ids
-#         obj['vert_ids']:    10936x3, vert_ids to build faces
-#         obj['uv_ids']:      10936x3, corresponding uv_ids for vert_ids
-
-#         pos_size (int, optional): size of postion map. Defaults to 256.
-#         progress (bool, optional): if showing progress bar. Defaults is False.
-#     RET:
-#         posMap:     256x256x3, postion map of mesh
-#     """
-#     posMap = np.zeros((pos_size, pos_size, 3))
-
-#     tri = obj['uvs'][obj['uv_ids']] * (pos_size - 1)     # Nx3x2
-
-#     if progress:
-#         bar = tqdm(range(pos_size))
-#     for u in range(pos_size):
-#         for v in range(pos_size):
-#             p = np.array([u, v])
-#             barys = batchBarycentric2d(tri, p)
-
-#             resIdx = np.where((np.abs(barys.sum(axis=-1) - 1) <= 1e-4)
-#                               & (((barys >= -1e-4) & (barys <= 1+1e-4)).sum(axis=-1) == 3))[0]
-#             if resIdx.shape == 0:
-#                 print(f'Cannot find a triangle for point ({u}, {v}).')
-#                 break
-
-#             f_id = resIdx[0]
-#             bary = barys[f_id][:, None]
-#             face = obj['vert_ids'][f_id]    # 3-dim vert ids
-#             posMap[u, v] = (obj['verts'][face] * bary).sum(axis=0)
-#         if progress:
-#             bar.update()
-
-#     return posMap
-
-
 def Mesh2PositionMap(obj, pos_size=256, progress=False):
     """~ 45s
     Args:
@@ -488,111 +408,10 @@ def Mesh2PositionMap(obj, pos_size=256, progress=False):
     return posMap
 
 
-# def Mesh2PositionMap(obj, pos_size=256, progress=False):
-#     """
-#     Args:
-#         obj['verts']:   7306x3, xyz coordinates of vertices
-#         obj['uvs']:     32808x2, uv coordinates for uv_ids
-#         obj['vert_ids']:    10936x3, vert_ids to build faces
-#         obj['uv_ids']:      10936x3, corresponding uv_ids for vert_ids
-
-#         pos_size (int, optional): size of postion map. Defaults to 256.
-#     RET:
-#         posMap:     256x256x3, postion map of mesh
-#     """
-#     posMap = np.zeros((pos_size, pos_size, 3))
-
-#     # check seam
-#     vert_uvs, vaild = check_seam(obj)
-
-#     uv_tri = Delaunay(obj['uvs'] * (pos_size - 1))
-#     uv_tri.simplices = obj['uv_ids']
-
-#     # TODO: 可以批量操作, vectorize
-#     if progress:
-#         bar = tqdm(range(pos_size))
-#     early = False
-#     for i in range(pos_size):
-#         for j in range(pos_size):
-#             # if j >= 150 and j <= 180:
-#             #     continue
-#             p = np.array([(i, j)])
-
-#             f_id = uv_tri.find_simplex(p, True)[0]  # if a point is at the edge, it's vaild.
-#                                                     # 第二个参数指定 bruteforce, 保证百分百正确, 而使用Qhull's qh_findbestfacet 快速算法会导致有错误的点.
-#             # print(f'({i}, {j})')
-#             if f_id < 0:
-#                 continue
-#             # compute bary-centric coordiante
-#             # https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.Delaunay.html
-#             b = uv_tri.transform[f_id, :2].dot(np.transpose(p - uv_tri.transform[f_id, 2]))
-#             bary = np.r_[b, 1 - b.sum(axis=0)[None]]    # 3x1
-
-#             face = obj['vert_ids'][f_id]    # 3-dim vert ids
-#             posMap[i, j] = (obj['verts'][face] * bary).sum(axis=0)
-#         if progress:
-#             bar.update()
-
-#     return posMap
-
-
-def Points2Mesh_pyvista(verts):
-    """
-    Args:
-        verts:      65536x3, vertices coordinates
-    """
-    import pyvista as pv
-
-    cloud = pv.PolyData(verts)
-    triangulated = cloud.delaunay_3d()
-
-    i = 1
-
-
-def Points2Mesh_o3d(verts):
-    """确实可以重建表面，但速度太慢，而且存在一些多余的部分
-    Args:
-        verts:      65536x3, vertices coordinates
-    """
-    import open3d as o3d
-
-    pcd = o3d.geometry.PointCloud()
-    pcd.points = o3d.utility.Vector3dVector(verts)
-    # o3d.visualization.draw_geometries([pcd])
-
-    pcd.estimate_normals(search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=0.01, max_nn=30))
-    # o3d.visualization.draw_geometries([pcd])
-
-    print("Reconstructing surface ...")
-    # ~ 4.05s
-    # poisson_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth=7, width=0, scale=1.1, linear_fit=False)[0]
-    # bbox = pcd.get_axis_aligned_bounding_box()
-    # p_mesh_crop = poisson_mesh.crop(bbox)
-    # o3d.io.write_triangle_mesh("bpa_mesh_c.ply", p_mesh_crop)
-
-    # ~ 4.99s
-    # distances = pcd.compute_nearest_neighbor_distance()
-    # avg_dist = np.mean(distances)
-    # radius = 3 * avg_dist
-    # bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcd, o3d.utility.DoubleVector([radius, radius * 2]))
-    # o3d.io.write_triangle_mesh("bpa_mesh_c.ply", bpa_mesh)
-
-
-def Points2Mesh_Delaunay3d(verts):
-    """直接在points上执行3D Delaunay,产生四边形,再连接四边形对角线,得到triangle
-
-    Args:
-        verts:      65536x3, vertices coordinates
-    """
-    tet = Delaunay(verts)
-    tri = []
-
-    for simp in tet:
-        pass
 
 
 def write_obj(filepath, verts, tris=None, log=True):
-    """将mesh顶点与三角面片存储为.obj文件,方便查看
+    """write obj file
 
     Args:
         verts:      65536x3, vertices coordinates
@@ -609,128 +428,6 @@ def write_obj(filepath, verts, tris=None, log=True):
     fw.close()
     if log:
         print(f"mesh has been saved in {filepath}.")
-
-
-def Points2Mesh_Fixed(verts):
-    """在uv上固定连接关系,直接将每个格子按对角线划分两个三角面
-
-    Args:
-        verts:      65536x3, vertices coordinates
-    """
-    # tris = []
-    # for i in range(255):
-    #     for j in range(255):
-    #         left_top = i * 256 + j
-    #         tris.append([left_top + 256, left_top + 1, left_top])
-    #         tris.append([left_top + 256, left_top + 257, left_top + 1])
-    # tris = np.array(tris) + 1
-    # np.save("tris.npy", tris)
-    tris = np.load(root + "/assets/tris.npy")
-    # h = np.array(range(256))
-    # w = np.array(range(256))
-    # grid = np.meshgrid(h, w)
-    # grid[0] = grid[0].reshape(-1)
-    # grid[1] = grid[1].reshape(-1)
-    # grid = grid[::-1]
-
-    # coordinates = np.stack(grid).T  # 65536x2
-    # plt.triplot(coordinates[:, 0], coordinates[:, 1], triangles=tris)
-    # plt.show()
-
-    write_obj(root + "/assets/pos2mesh.obj", verts, tris)
-    return verts, tris
-
-
-def Points2Mesh_Delaunay2d(verts):
-    """在uv上执行2D Delaunay,然后将uv的连接关系对应到 verts
-
-    Args:
-        verts:      65536x3, vertices coordinates
-    """
-    import matplotlib as mpl
-    from matplotlib import pyplot as plt
-    import mpl_toolkits.mplot3d as a3
-    import scipy as sp
-
-    h = np.array(range(256))
-    w = np.array(range(256))
-    grid = np.meshgrid(h, w)
-    grid[0] = grid[0].reshape(-1)
-    grid[1] = grid[1].reshape(-1)
-    grid = grid[::-1]
-
-    coordinates = np.stack(grid).T  # 65536x2
-    tris = Delaunay(coordinates).simplices  # n_facex3
-
-    # plt.triplot(coordinates[:, 0], coordinates[:, 1], triangles=tris)
-    # plt.show()
-
-    return verts, tris
-
-    # draw faces
-    # faces = verts[tri]          # n_facex3x3
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111, projection='3d')
-    # # ax.dist = 30
-    # # ax.azim = -140
-    # ax.set_xlim([faces[:, :, 0].min(), faces[:, :, 0].max()])
-    # ax.set_ylim([faces[:, :, 1].min(), faces[:, :, 1].max()])
-    # ax.set_zlim([faces[:, :, 2].min(), faces[:, :, 2].max()])
-    # ax.set_xlabel('x')
-    # ax.set_ylabel('y')
-    # ax.set_zlabel('z')
-
-    # for f in faces:
-    #     face = a3.art3d.Poly3DCollection([f])
-    #     face.set_color(mpl.colors.rgb2hex(sp.rand(3)))
-    #     face.set_edgecolor('k')
-    #     face.set_alpha(0.5)
-    #     ax.add_collection3d(face)
-
-    # plt.show()
-
-
-def Points2Mesh_ConvexHull(verts):
-    from scipy.spatial import ConvexHull
-    import matplotlib as mpl
-    import mpl_toolkits.mplot3d as a3
-    import scipy as sp
-
-    hull = ConvexHull(verts)
-    indices = hull.simplices
-    faces = verts[indices]
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
-    # ax.dist = 30
-    # ax.azim = -140
-    ax.set_xlim([faces[:, :, 0].min(), faces[:, :, 0].max()])
-    ax.set_ylim([faces[:, :, 1].min(), faces[:, :, 1].max()])
-    ax.set_zlim([faces[:, :, 2].min(), faces[:, :, 2].max()])
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.set_zlabel("z")
-
-    for f in faces:
-        face = a3.art3d.Poly3DCollection([f])
-        face.set_color(mpl.colors.rgb2hex(sp.rand(3)))
-        face.set_edgecolor("k")
-        face.set_alpha(0.5)
-        ax.add_collection3d(face)
-
-    plt.show()
-
-
-def PositionMap2Mesh(posMap):
-    """
-    Args:
-        posMap:     256x256x3, postion map of mesh
-    """
-    verts = posMap.reshape(-1, 3)
-
-    # Points2Mesh_o3d(verts)
-    Points2Mesh_Fixed(verts)
-    # Points2Mesh_Delaunay2d(verts)
 
 
 def visPositionMap(savepath, posMap):
@@ -823,17 +520,3 @@ class AverageMeter(object):
         fmtstr = "{name} {val" + self.fmt + "} ({avg" + self.fmt + "})"
         return fmtstr.format(**self.__dict__)
 
-
-if __name__ == "__main__":
-    # obj = load_obj(
-    #     "/apdcephfs_cq2/share_1467498/datasets/multiface/m--20180426--0000--002643814--GHS/tracked_mesh/E040_Lips_Open_Left/013192.obj"
-    # )
-
-    # # show original uv grid
-    # plt.triplot(obj["uvs"][:, 0] * 256, obj["uvs"][:, 1] * 256, triangles=obj["uv_ids"])
-    # plt.show()
-    posMean = np.load(
-        "/apdcephfs_cq3/share_1467498/datasets/multiface/m--20190529--1300--002421669--GHS/gendir/posMean.npy"
-    )
-
-    write_obj("posMean.obj", posMean.transpose((1, 2, 0)).reshape(-1, 3))
