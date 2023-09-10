@@ -1,0 +1,133 @@
+data.img_h: 1024
+data.img_w: 667
+data.tex_size: 1024
+data.pos_size: 256
+data.base_dir: '/path/to/multiface/m--20180426--0000--002643814--GHS/'
+data.gen_dir: '/path/to/multiface/m--20180426--0000--002643814--GHS/gendir/'
+data.tris_path: './assets/data/tris.npy'
+data.mouth_mask: './assets/data/mouth_mask.npy'
+data.train_list: './split/seqs_rand_split_0426/train_list.txt'
+data.test_list: './split/seqs_rand_split_0426/test_list.txt'
+data.per_gpu_batch_size: 1
+data.num_workers: 8
+training.weight_decay: 4.0e-05
+training.learning_rate: 0.001
+training.step:
+  - 15
+  # - 60 
+training.epochs: 35
+training.gpus: 0
+training.eval_interval: 50000
+training.depth_thres: 10
+training.disp_thres: 10
+training.lambda_kl: 0.001
+training.lambda_rgb: 5
+training.lambda_rgb_slope: 0
+training.lambda_rgb_end: 5
+training.lambda_depth: 0.1
+training.lambda_depth_slope: 0
+training.lambda_depth_end: 0.1
+training.lambda_interval: 15000
+training.lambda_mesh: 0.2
+training.lambda_mesh_slope: 0
+training.lambda_mesh_end: 0.2
+training.lambda_rdepth: 0.2
+training.lambda_sg: 1
+training.lambda_lpips: 0.1
+training.lambda_disp: 0.1
+training.smooth_method: 'smooth_l1'
+training.smooth_beta: 4
+training.pretrained_checkpoint_path: null
+training.errMap: null
+# 8
+training.first_phase: 10
+# 15
+training.second_phase: 25
+# neural points
+rendering.random_sample: 'grid'
+rendering.random_sample_size: 340
+rendering.near: 900
+rendering.far: 1300
+rendering.radius_limit_scale: 4.0
+rendering.sampling_method: 'dcenter'
+rendering.sampling_radius: 20
+rendering.linear_ratio: 0.2
+rendering.z_depth_dim: 20
+rendering.SR: 16
+rendering.K: 8
+rendering.max_o: 550000
+rendering.P: 25
+rendering.dthres: 30
+rendering.span: 16
+rendering.gpu_maxthr: 1024
+# for 1k
+rendering.vsize:
+  - 1
+  - 1
+  - 1
+rendering.vscale:
+  - 1
+  - 1
+  - 1
+rendering.kernel_size:
+  - 7
+  - 7
+  - 7
+rendering.query_size:
+  - 7
+  - 7
+  - 7
+# aggregator
+rendering.agg_axis_weight:
+  - 1.0
+  - 1.0
+  - 1.0
+rendering.agg_dist_pers: 20
+rendering.agg_distance_kernel: 'linear'
+rendering.gamma: 'learn'
+rendering.agg_intrp_order: 0
+rendering.point_dir_mode: 0
+rendering.agg_weight_norm: 1
+
+# Ablation
+ablation.upsample: 1    # 0: no upsample (256)    1: use upsample
+ablation.upscale: 4     # number of upscale, only valid when 'ablation.upsample' is 1. 
+ablation.use_disp: 1    # 0: no disp map    1: use disp map
+rendering.which_agg_model: 'viewmlp'  # 'viewmlp': Lightweight Decoding,   'fullmlp': Point-NeRF Decoding
+
+# mlp
+rendering.shading_feature_mlp_layer: 4
+rendering.shading_alpha_mlp_layer: 2
+rendering.shading_color_mlp_layer: 4
+
+# almost no change
+rendering.num_pos_freqs: 10
+rendering.num_viewdir_freqs: 4
+rendering.num_feat_freqs: 3
+rendering.view_ori: 0
+rendering.dist_xyz_freq: 5
+
+rendering.shading_feature_num: 256
+rendering.point_hyper_dim: 256
+rendering.point_features_dim: 32
+rendering.act_type: 'LeakyReLU'
+rendering.act_super: 1
+rendering.raydist_mode_unit: 1
+rendering.apply_pnt_mask: 1
+rendering.shading_color_channel_num: 3
+
+# no use
+rendering.point_conf_mode: 1
+rendering.point_color_mode: 0
+rendering.shading_feature_siren_layer: 3
+rendering.dist_xyz_deno: 0.0
+rendering.NN: 2
+rendering.prob: 0
+rendering.sparse_loss_weight: 0
+rendering.zero_one_loss_items: 
+  - 
+rendering.sh_degree: 4
+rendering.weight_feat_dim: 8
+rendering.agg_feat_xyz_mode: 'None'
+rendering.agg_alpha_xyz_mode: 'None'
+rendering.agg_color_xyz_mode: 'None'
