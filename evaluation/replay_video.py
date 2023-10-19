@@ -62,7 +62,7 @@ cam_ids = ["400029", "400042"]
 s_view, e_view = krt[cam_ids[0]]["extrin"], krt[cam_ids[1]]["extrin"]
 intrin = krt[cam_ids[0]]["intrin"]
 
-tris = np.load('./assets/data/tris_new.npy') - 1
+tris = np.load('./assets/data/tris.npy') - 1
 
 def directory(path):
     if not os.path.exists(path):
@@ -139,24 +139,24 @@ def interp_extrin(start_extrin, end_extrin, t):
     return np.concatenate([rot, trans], axis=-1)
 
 # from up to down
-def create_spheric_poses(n_steps=120):
-    center = np.array([7.0, 10.0, 1063.0]).astype(np.float32)
-    r = 1200
-    up = np.array([0.0, -1.0, 0.0], dtype=center.dtype)
+# def create_spheric_poses(n_steps=120):
+#     center = np.array([7.0, 10.0, 1063.0]).astype(np.float32)
+#     r = 1200
+#     up = np.array([0.0, -1.0, 0.0], dtype=center.dtype)
 
-    all_c2w = []
-    for theta in np.linspace(-2 * math.pi / 3, -math.pi / 3, n_steps):
-        diff = np.stack([0, r * np.cos(theta), r * np.sin(theta)])
-        cam_pos = center + diff
-        l = -diff / np.linalg.norm(diff)
-        s = np.cross(l, up) / np.linalg.norm(np.cross(l, up))
-        u = np.cross(s, l) / np.linalg.norm(np.cross(s, l))
-        c2w = np.concatenate([np.stack([s, -u, l], axis=1), cam_pos[:, None]], axis=1)
-        all_c2w.append(c2w)
+#     all_c2w = []
+#     for theta in np.linspace(-2 * math.pi / 3, -math.pi / 3, n_steps):
+#         diff = np.stack([0, r * np.cos(theta), r * np.sin(theta)])
+#         cam_pos = center + diff
+#         l = -diff / np.linalg.norm(diff)
+#         s = np.cross(l, up) / np.linalg.norm(np.cross(l, up))
+#         u = np.cross(s, l) / np.linalg.norm(np.cross(s, l))
+#         c2w = np.concatenate([np.stack([s, -u, l], axis=1), cam_pos[:, None]], axis=1)
+#         all_c2w.append(c2w)
 
-    all_c2w = np.stack(all_c2w, axis=0)
+#     all_c2w = np.stack(all_c2w, axis=0)
 
-    return all_c2w
+#     return all_c2w
 
 
 # from left to right
@@ -178,6 +178,26 @@ def create_spheric_poses(n_steps=120):
 #     all_c2w = np.stack(all_c2w, axis=0)
 
 #     return all_c2w
+
+# 0105
+def create_spheric_poses(n_steps=120):
+    center = np.array([7.0, 200.0, 1063.0]).astype(np.float32)
+    r = 1200
+    up = np.array([0.0, -1.0, 0.0], dtype=center.dtype)
+
+    all_c2w = []
+    for theta in np.linspace(-2 * math.pi / 3, -math.pi / 3, n_steps):
+        diff = np.stack([r * np.cos(theta), 0, r * np.sin(theta)])
+        cam_pos = center + diff
+        l = -diff / np.linalg.norm(diff)
+        s = np.cross(l, up) / np.linalg.norm(np.cross(l, up))
+        u = np.cross(s, l) / np.linalg.norm(np.cross(s, l))
+        c2w = np.concatenate([np.stack([s, -u, l], axis=1), cam_pos[:, None]], axis=1)
+        all_c2w.append(c2w)
+
+    all_c2w = np.stack(all_c2w, axis=0)
+
+    return all_c2w
 
 
 def render(trainer, data, z_code):
@@ -269,8 +289,10 @@ def get_data(views, view_idx, data_cur, z_cur, t=0, z_next=None, data_next=None)
         camrotc2w = R_C.T
         campos = -camrotc2w @ t_C
     else:
-        camrotc2w = views[view_idx][:3, :3]
-        campos = views[view_idx][:3, 3]
+        view = np.concatenate([s_view, np.array([[0, 0, 0, 1]])], axis=0) @ np.concatenate([views[view_idx], np.array([[0, 0, 0, 1]])], axis=0)
+        
+        camrotc2w = view[:3, :3]
+        campos = view[:3, 3]
 
         R_C = camrotc2w.T
         t_C = -R_C @ campos
