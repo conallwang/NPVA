@@ -233,7 +233,7 @@ if __name__ == "__main__":
 
     # logging to stdout. If you want to log to file, uncomment the following codes.
     # config["log_file"] = os.path.join(dir_name, 'test_image.log')
-    logger = logging.getLogger("NPA")
+    logger = logging.getLogger("NPVA")
     stream_handler = logging.StreamHandler(sys.stdout)
     formatter = logging.Formatter("[%(asctime)s %(filename)s] %(message)s")
     stream_handler.setFormatter(formatter)

@@ -1,6 +1,6 @@
 # Neural Point-based Volumetric Avatar
 
-## [Project Page](TODO) | [Video](TODO) | [PDF](TODO)
+## Project Page | Video | [PDF](https://arxiv.org/abs/2307.05000)
 
 This is the official code release for "Neural Point-based Volumetric Avatar: Surface-guided Neural Points for Efficient and Photorealistic Volumetric Head Avatar", SIGGRAPH Asia 2023.
 
@@ -80,7 +80,7 @@ By running [start.sh](./start.sh), you can train our network with ***a single GP
 
 ### Evaluation
 
-We provide our pretrained models [here](TODO). You can download the model zip file and unzip them to somewhere (/path/to/models_xxxx).
+We provide our pretrained models [here](https://drive.google.com/drive/folders/19Ot74JMM3vCrpYCqFJj4PefyBBPL5frj?usp=sharing). You can download the model zip file and unzip them to somewhere (/path/to/models_xxxx).
 
 ***To evaluate our visual results***, you need
 
@@ -128,4 +128,20 @@ python evaluation/replay_video.py --img_list test.txt --checkpoint /path/to/mode
 
 ## Citation
 
-If you use any data from this dataset or any code released in this repository, please cite the technical report (https://arxiv.org/abs/xxxx.xxxxx)
+If you use any data from this dataset or any code released in this repository, please cite the technical report (https://arxiv.org/abs/2307.05000)
+
+```
+@article{DBLP:journals/corr/abs-2307-05000,
+  author       = {Cong Wang and
+                  Di Kang and
+                  Yan{-}Pei Cao and
+                  Linchao Bao and
+                  Ying Shan and
+                  Song{-}Hai Zhang},
+  title        = {Neural Point-based Volumetric Avatar: Surface-guided Neural Points
+                  for Efficient and Photorealistic Volumetric Head Avatar},
+  journal      = {CoRR},
+  volume       = {abs/2307.05000},
+  year         = {2023}
+}
+```
