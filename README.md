@@ -1,6 +1,6 @@
 # Neural Point-based Volumetric Avatar
 
-## Project Page | Video | [PDF](https://arxiv.org/abs/2307.05000)
+## [Project Page](https://johnsonlc.github.io/npva.github.io/) | Video | [PDF](https://arxiv.org/abs/2307.05000)
 
 This is the official code release for "Neural Point-based Volumetric Avatar: Surface-guided Neural Points for Efficient and Photorealistic Volumetric Head Avatar", SIGGRAPH Asia 2023.
 
